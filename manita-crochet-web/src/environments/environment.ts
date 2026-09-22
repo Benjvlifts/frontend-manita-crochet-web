@@ -1,11 +1,21 @@
+// Reemplaza estos 2 valores por los del App Registration que crees en Entra External ID (ver guía).
+const tenantSubdomain = 'YOUR_TENANT_SUBDOMAIN'; // el subdominio del tenant, NO el Tenant ID/GUID
+const clientId = 'YOUR_AZURE_CLIENT_ID';
+
 export const environment = {
   production: false,
-  apiGatewayUrl: 'YOUR_AWS_API_GATEWAY_URL', // ej: https://abc123.execute-api.us-east-1.amazonaws.com/prod
+  // EP1: probamos todo en local contra los backends en localhost.
+  // EP2: estos valores se reemplazan por la URL real del API Manager/API Gateway en AWS.
+  apiGatewayUrl: 'http://localhost:8080', // lanas-service
+  pedidosApiUrl: 'http://localhost:8081', // pedidos-service
   azure: {
-    tenantId: 'YOUR_AZURE_TENANT_ID',
-    clientId: 'YOUR_AZURE_CLIENT_ID',
+    tenantSubdomain,
+    clientId,
+    // Microsoft Entra External ID (CIAM): la autoridad usa el SUBDOMINIO del tenant
+    // (https://<subdominio>.ciamlogin.com/), NO login.microsoftonline.com.
+    authority: `https://${tenantSubdomain}.ciamlogin.com/`,
     redirectUri: 'http://localhost:4200',
-    // Scope expuesto en "Expose an API" del App Registration
-    apiScope: 'api://YOUR_AZURE_CLIENT_ID/access_as_user'
+    // Scope expuesto en "Expose an API" del App Registration (mismo clientId).
+    apiScope: `api://${clientId}/access_as_user`
   }
 };
