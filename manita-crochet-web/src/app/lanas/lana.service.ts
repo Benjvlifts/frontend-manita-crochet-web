@@ -17,9 +17,4 @@ export class LanaService {
   listar(): Observable<Lana[]> {
     return this.http.get<Lana[]>(`${environment.apiGatewayUrl}/api/lanas`);
   }
-
-  // El backend exige rol Admin para este endpoint (ver SecurityConfig).
-  crear(lana: Omit<Lana, 'id'>): Observable<Lana> {
-    return this.http.post<Lana>(`${environment.apiGatewayUrl}/api/lanas`, lana);
-  }
 }

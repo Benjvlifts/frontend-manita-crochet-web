@@ -16,11 +16,7 @@ export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication({
     auth: {
       clientId: environment.azure.clientId,
-      authority: environment.azure.authority,
-      // Entra External ID: fuerza a MSAL a confiar en el dominio ciamlogin.com de este tenant.
-      // Evita el error "issuer_validation_failed" que puede aparecer en versiones recientes de
-      // msal-browser cuando el issuer devuelto usa el GUID del tenant en vez del subdominio.
-      knownAuthorities: [`${environment.azure.tenantSubdomain}.ciamlogin.com`],
+      authority: `https://login.microsoftonline.com/${environment.azure.tenantId}`,
       redirectUri: environment.azure.redirectUri,
       postLogoutRedirectUri: environment.azure.redirectUri
     },
@@ -39,7 +35,6 @@ export function MSALInstanceFactory(): IPublicClientApplication {
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
   protectedResourceMap.set(`${environment.apiGatewayUrl}/api/lanas`, [environment.azure.apiScope]);
-  protectedResourceMap.set(`${environment.pedidosApiUrl}/api/pedidos`, [environment.azure.apiScope]);
 
   return {
     interactionType: InteractionType.Redirect,

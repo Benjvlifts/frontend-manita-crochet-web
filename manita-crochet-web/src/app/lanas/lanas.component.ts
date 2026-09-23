@@ -33,15 +33,7 @@ export class LanasComponent implements OnInit {
   ngOnInit(): void {
     this.service.listar().subscribe({
       next: data => (this.lanas = data),
-      error: err => {
-        if (err.status === 401) {
-          this.error = 'Tu sesión expiró o no es válida. Vuelve a iniciar sesión.';
-        } else if (err.status === 403) {
-          this.error = 'No tienes permisos para ver este recurso.';
-        } else {
-          this.error = `Error ${err.status}: no se pudo cargar el catálogo`;
-        }
-      }
+      error: err => (this.error = `Error ${err.status}: no se pudo cargar el catálogo`)
     });
   }
 }
