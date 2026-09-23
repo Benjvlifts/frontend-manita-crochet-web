@@ -34,7 +34,10 @@ export function MSALInstanceFactory(): IPublicClientApplication {
 
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
+  // Un solo scope (expuesto en "Exponer una API") protege ambos microservicios detrás del
+  // mismo API Gateway, así que basta con registrar cada prefijo de ruta con el mismo scope.
   protectedResourceMap.set(`${environment.apiGatewayUrl}/api/lanas`, [environment.azure.apiScope]);
+  protectedResourceMap.set(`${environment.apiGatewayUrl}/api/pedidos`, [environment.azure.apiScope]);
 
   return {
     interactionType: InteractionType.Redirect,

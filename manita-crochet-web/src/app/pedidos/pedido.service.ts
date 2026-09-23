@@ -16,16 +16,16 @@ export class PedidoService {
   constructor(private http: HttpClient) {}
 
   listar(): Observable<Pedido[]> {
-    return this.http.get<Pedido[]>(`${environment.pedidosApiUrl}/api/pedidos`);
+    return this.http.get<Pedido[]>(`${environment.apiGatewayUrl}/api/pedidos`);
   }
 
   // Cualquier usuario autenticado puede crear su propio pedido (ver SecurityConfig del backend).
   crear(pedido: Omit<Pedido, 'id' | 'estado'>): Observable<Pedido> {
-    return this.http.post<Pedido>(`${environment.pedidosApiUrl}/api/pedidos`, pedido);
+    return this.http.post<Pedido>(`${environment.apiGatewayUrl}/api/pedidos`, pedido);
   }
 
   // El backend exige rol Admin para este endpoint.
   actualizarEstado(id: number, estado: string): Observable<Pedido> {
-    return this.http.patch<Pedido>(`${environment.pedidosApiUrl}/api/pedidos/${id}/estado`, { estado });
+    return this.http.patch<Pedido>(`${environment.apiGatewayUrl}/api/pedidos/${id}/estado`, { estado });
   }
 }

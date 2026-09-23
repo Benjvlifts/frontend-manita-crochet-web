@@ -1,5 +1,8 @@
 export const environment = {
   production: false,
+  // Una sola AWS API Gateway (API Manager) enruta a ambos microservicios:
+  // {apiGatewayUrl}/api/lanas   -> lanas-service
+  // {apiGatewayUrl}/api/pedidos -> pedidos-service
   apiGatewayUrl: 'YOUR_AWS_API_GATEWAY_URL', // ej: https://abc123.execute-api.us-east-1.amazonaws.com/prod
   azure: {
     tenantId: 'YOUR_AZURE_TENANT_ID',
