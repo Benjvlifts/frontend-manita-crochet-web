@@ -3,7 +3,7 @@ export const environment = {
   // Una sola AWS API Gateway (API Manager) enruta a ambos microservicios:
   // {apiGatewayUrl}/api/lanas   -> lanas-service
   // {apiGatewayUrl}/api/pedidos -> pedidos-service
-  apiGatewayUrl: 'YOUR_AWS_API_GATEWAY_URL', // pendiente: se completa en la EP2 al crear el API Gateway (AWS)
+  apiGatewayUrl: 'https://abc123xyz.execute-api.us-east-1.amazonaws.com', // sin barra final
   azure: {
     tenantId: '522bdf93-3bcf-46ce-83e7-ec4538db5496', // ManitasCrochet (manitascrochet.onmicrosoft.com)
     clientId: '3e1ac9d8-06dd-4ed2-a236-5d8397ad4944',
