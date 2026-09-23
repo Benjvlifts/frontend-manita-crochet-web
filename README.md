@@ -22,36 +22,54 @@ frontend/manita-crochet-web/
 | `/lanas/agregar` | Formulario para agregar lana | solo `Admin` (`MsalGuard` + `adminGuard`) |
 | `/pedidos` | Mis pedidos / gestión de estado | cualquier usuario autenticado (`MsalGuard`) |
 
-## Configurar antes de ejecutar
+## Configuración de Azure (ya cargada)
 
-Editar `src/environments/environment.ts` con los valores reales del App Registration:
+`src/environments/environment.ts` ya tiene el tenant y la app real de **ManitasCrochet**:
 
 ```ts
 export const environment = {
   production: false,
-  apiGatewayUrl: 'https://xxxx.execute-api.us-east-1.amazonaws.com/prod', // AWS API Gateway
+  apiGatewayUrl: 'YOUR_AWS_API_GATEWAY_URL', // se completa en la EP2, al crear el API Gateway
   azure: {
-    tenantId: '...',        // Directory (tenant) ID
-    clientId: '...',        // Application (client) ID de la SPA
+    tenantId: '522bdf93-3bcf-46ce-83e7-ec4538db5496',
+    clientId: '3e1ac9d8-06dd-4ed2-a236-5d8397ad4944',
     redirectUri: 'http://localhost:4200',
-    apiScope: 'api://<clientId>/access_as_user' // scope expuesto en "Exponer una API"
+    apiScope: 'api://3e1ac9d8-06dd-4ed2-a236-5d8397ad4944/access_as_user'
   }
 };
 ```
 
-`apiGatewayUrl` es **una sola URL** (el API Gateway/API Manager de AWS) que enruta tanto a
-`/api/lanas` como a `/api/pedidos` hacia el microservicio correspondiente.
+`apiGatewayUrl` sigue como placeholder: esa URL solo existe cuando se crea el API Gateway de AWS,
+que corresponde a la **EP2**. Mientras tanto, para probar el login y el JWT en local, usa el proxy
+(ver abajo) en vez de este campo.
 
 ## Cómo ejecutar
+
+### Opción A — Local, sin API Gateway todavía (recomendado para probar EP1)
+
+Con `lanas-service` (puerto 8080) y `pedidos-service` (puerto 8081) corriendo, este repo trae
+`proxy.conf.json` para que Angular reenvíe `/api/lanas` y `/api/pedidos` directo a cada microservicio:
+
+```bash
+npm install
+ng serve --proxy-config proxy.conf.json
+```
+
+Con esta opción, `apiGatewayUrl` puede quedar vacío (`''`) en `environment.ts` para que las llamadas
+usen rutas relativas (`/api/lanas`, `/api/pedidos`) que el proxy intercepta.
+
+### Opción B — Contra el API Gateway de AWS (EP2)
 
 ```bash
 npm install
 ng serve
 ```
 
-Abrir `http://localhost:4200`. El botón "Iniciar sesión" dispara `loginRedirect` hacia Entra ID;
-al volver, `MsalInterceptor` adjunta automáticamente `Authorization: Bearer <token>` en cada llamada
-a las rutas registradas en `protectedResourceMap` (`auth-config.ts`).
+Requiere haber completado `apiGatewayUrl` en `environment.ts` con la URL real del API Gateway.
+
+En ambos casos: abrir `http://localhost:4200`. El botón "Iniciar sesión" dispara `loginRedirect`
+hacia Entra ID; al volver, `MsalInterceptor` adjunta automáticamente `Authorization: Bearer <token>`
+en cada llamada a las rutas registradas en `protectedResourceMap` (`auth-config.ts`).
 
 ## Verificado
 
