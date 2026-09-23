@@ -35,9 +35,14 @@ export function MSALInstanceFactory(): IPublicClientApplication {
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
   // Un solo scope (expuesto en "Exponer una API") protege ambos microservicios detrás del
-  // mismo API Gateway, así que basta con registrar cada prefijo de ruta con el mismo scope.
+  // mismo API Gateway. IMPORTANTE: sin "/*" al final, MsalInterceptor solo matchea la URL
+  // EXACTA (msal-angular v2+). Sin el wildcard, PATCH /api/pedidos/{id}/estado no matcheaba
+  // la entrada "/api/pedidos" y el interceptor nunca adjuntaba el Bearer token -> 401 siempre
+  // al marcar un pedido como enviado, incluso siendo Admin.
   protectedResourceMap.set(`${environment.apiGatewayUrl}/api/lanas`, [environment.azure.apiScope]);
+  protectedResourceMap.set(`${environment.apiGatewayUrl}/api/lanas/*`, [environment.azure.apiScope]);
   protectedResourceMap.set(`${environment.apiGatewayUrl}/api/pedidos`, [environment.azure.apiScope]);
+  protectedResourceMap.set(`${environment.apiGatewayUrl}/api/pedidos/*`, [environment.azure.apiScope]);
 
   return {
     interactionType: InteractionType.Redirect,
