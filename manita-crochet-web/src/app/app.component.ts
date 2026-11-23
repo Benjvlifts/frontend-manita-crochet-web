@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MsalService } from '@azure/msal-angular';
 import { NavComponent } from './nav/nav.component';
 
 @Component({
@@ -14,22 +13,6 @@ import { NavComponent } from './nav/nav.component';
     </main>
   `
 })
-export class AppComponent implements OnInit {
-  constructor(private msal: MsalService) {}
-
-  ngOnInit(): void {
-    // Procesa la respuesta del redirect (Authorization Code) y fija la cuenta activa
-    this.msal.instance.initialize().then(() =>
-      this.msal.instance.handleRedirectPromise().then(result => {
-        if (result?.account) {
-          this.msal.instance.setActiveAccount(result.account);
-        } else if (!this.msal.instance.getActiveAccount()) {
-          const accounts = this.msal.instance.getAllAccounts();
-          if (accounts.length > 0) {
-            this.msal.instance.setActiveAccount(accounts[0]);
-          }
-        }
-      })
-    );
-  }
+export class AppComponent {
+  // El procesamiento del redirect de MSAL vive en main.ts (inicializarMsal), antes del arranque.
 }

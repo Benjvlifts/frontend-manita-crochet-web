@@ -1,4 +1,3 @@
-# Pedidos360 — Frontend
 
 Frontend en **Angular 17 (standalone components)** del sistema **Pedidos360**, con autenticación
 mediante **MSAL** (`@azure/msal-browser` + `@azure/msal-angular`) contra **Microsoft Entra ID**
@@ -10,8 +9,9 @@ frontend/manita-crochet-web/
     ├── auth/          AuthService (lectura de roles/scopes del token) + adminGuard
     ├── lanas/         Catálogo de lanas + alta de lana (solo Admin)
     ├── pedidos/       Pedidos del cliente + cambio de estado (solo Admin)
+    ├── analitica/     Ventas por lana en tiempo real (EP5, alimentada por Kafka)
     ├── nav/           Barra de navegación (login/logout + links condicionales por rol)
-    └── auth-config.ts Configuración de MSAL (instancia, guard, interceptor)
+    └── auth-config.ts Configuración de MSAL (instancia, guard, interceptor) e inicialización previa al arranque
 ```
 
 ## Rutas
@@ -21,6 +21,7 @@ frontend/manita-crochet-web/
 | `/lanas` | Catálogo de lanas | cualquier usuario autenticado (`MsalGuard`) |
 | `/lanas/agregar` | Formulario para agregar lana | solo `Admin` (`MsalGuard` + `adminGuard`) |
 | `/pedidos` | Mis pedidos / gestión de estado | cualquier usuario autenticado (`MsalGuard`) |
+| `/analitica` | Unidades vendidas por lana, calculadas desde Kafka (se refresca cada 5 s) | cualquier usuario autenticado (`MsalGuard`) |
 
 ## Configuración de Azure (ya cargada)
 
@@ -29,7 +30,7 @@ frontend/manita-crochet-web/
 ```ts
 export const environment = {
   production: false,
-  apiGatewayUrl: 'YOUR_AWS_API_GATEWAY_URL', // se completa en la EP2, al crear el API Gateway
+  apiGatewayUrl: 'https://mn8nf3v00l.execute-api.us-east-1.amazonaws.com', // API Gateway de AWS, sin barra final
   azure: {
     tenantId: '522bdf93-3bcf-46ce-83e7-ec4538db5496',
     clientId: '3e1ac9d8-06dd-4ed2-a236-5d8397ad4944',
@@ -39,9 +40,9 @@ export const environment = {
 };
 ```
 
-`apiGatewayUrl` sigue como placeholder: esa URL solo existe cuando se crea el API Gateway de AWS,
-que corresponde a la **EP2**. Mientras tanto, para probar el login y el JWT en local, usa el proxy
-(ver abajo) en vez de este campo.
+`apiGatewayUrl` apunta al API Gateway de AWS (creado en la EP2). Las rutas `/api/lanas`, `/api/pedidos`,
+`/api/analitica/*` y `/api/admin/kafka/*` se enrutan a los microservicios desplegados en la EC2.
+Para trabajar solo en local (sin AWS) se puede usar el proxy (ver Opción A).
 
 ## Cómo ejecutar
 
@@ -70,6 +71,20 @@ Requiere haber completado `apiGatewayUrl` en `environment.ts` con la URL real de
 En ambos casos: abrir `http://localhost:4200`. El botón "Iniciar sesión" dispara `loginRedirect`
 hacia Entra ID; al volver, `MsalInterceptor` adjunta automáticamente `Authorization: Bearer <token>`
 en cada llamada a las rutas registradas en `protectedResourceMap` (`auth-config.ts`).
+
+## Flujo de login (MSAL)
+
+`main.ts` llama a `inicializarMsal()` (en `auth-config.ts`) **antes** de arrancar Angular: inicializa MSAL,
+procesa el retorno de Microsoft (`#code=...&state=...`) y fija la cuenta activa. Recién después se
+arranca la app, el router y el `MsalGuard`. Así el retorno se procesa una sola vez; si el router y el
+guard lo procesan a la vez, MSAL puede fallar con `state_not_found` y la pantalla queda en blanco.
+`navigateToLoginRequestUrl` está en `false`: tras el login se vuelve a `/`, que redirige a `/lanas`.
+
+### Si tras iniciar sesión la página queda en blanco
+
+1. Abre `http://localhost:4200` (debe ser `localhost`, no `127.0.0.1`, para coincidir con la Redirect URI).
+2. F12 → *Application* → *Clear site data* para `localhost:4200` y recarga.
+3. Revisa la pestaña *Console*: un `ClientAuthError` o un código `AADSTS...` indica la causa.
 
 ## Verificado
 
