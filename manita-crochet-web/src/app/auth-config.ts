@@ -43,6 +43,8 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   protectedResourceMap.set(`${environment.apiGatewayUrl}/api/lanas/*`, [environment.azure.apiScope]);
   protectedResourceMap.set(`${environment.apiGatewayUrl}/api/pedidos`, [environment.azure.apiScope]);
   protectedResourceMap.set(`${environment.apiGatewayUrl}/api/pedidos/*`, [environment.azure.apiScope]);
+  // EP5: analítica de ventas (lanas-service, alimentada por Kafka). Mismo scope y mismo patrón con "/*".
+  protectedResourceMap.set(`${environment.apiGatewayUrl}/api/analitica/*`, [environment.azure.apiScope]);
 
   return {
     interactionType: InteractionType.Redirect,

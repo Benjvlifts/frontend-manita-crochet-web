@@ -14,6 +14,7 @@ import { AuthService } from '../auth/auth.service';
       <strong>🧶 Manita Crochet</strong>
       <a routerLink="/lanas">Lanas</a>
       <a *ngIf="usuario" routerLink="/pedidos">Pedidos</a>
+      <a *ngIf="usuario" routerLink="/analitica">Analítica</a>
       <a *ngIf="auth.isAdmin()" routerLink="/lanas/agregar">Agregar lana</a>
       <span style="flex:1"></span>
       <span *ngIf="usuario">{{ usuario }}</span>
